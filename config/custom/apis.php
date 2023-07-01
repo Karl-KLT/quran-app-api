@@ -10,6 +10,9 @@ return [
     ],
 
     'QuranRoute' => [
-
+        '[prefix]Quran/' => [
+            '[get]getAll',
+            '[get]getSurah/{numberOfSurah}',
+        ]
     ]
 ];

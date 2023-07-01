@@ -14,34 +14,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('User')->group(function(){
+Route::prefix('Auth')->group(function(){
     Route::post('createUser','AuthController@createUser');
     Route::post('updateUser','AuthController@updateUser');
 });
+
+
 // main apis
 Route::prefix('Quran')->group(function(){
 
     Route::get('getAll','QuranController@getAll');
 
 
-
-
-
-
-
-
-
-
+    Route::get('getSurah/{numberOfSurah?}','QuranController@getSurah');
 
 });
 // end main apis
+
 Route::fallback(function(){
+    if(config('app.dev')){
+        return response()->json([
+            'apis' => [
+                'User' => config('custom.apis.UserRoute'),
+                'Quran' => config('custom.apis.QuranRoute')
+            ],
+            'message' => "api doesn't found, check type of api then try again",
+            'status' => 404
+        ],404);
+    }
     return response()->json([
-        'apis' => [
-            'User' => config('custom.apis.UserRoute'),
-            'Quran' => config('custom.apis.QuranRoute')
-        ],
-        'message' => "api doesn't found, check type of api then try again",
+        'message' => "error",
         'status' => 404
     ],404);
 })->name('fallback');
