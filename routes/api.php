@@ -24,9 +24,12 @@ Route::prefix('Auth')->group(function(){
 Route::prefix('Quran')->group(function(){
 
     Route::get('getAll','QuranController@getAll');
-
+    Route::get('getAllPersonTafir','QuranController@getAllPersonTafir');
+    Route::get('getAllPersonAudio','QuranController@getAllPersonAudio');
 
     Route::get('getSurah/{numberOfSurah}','QuranController@getSurah');
+    Route::get('getTafsir/{numberOfSurah}/{idOfPerson}','QuranController@getTafsir');
+    Route::get('getAudio/{numberOfSurah}/{idOfPerson}','QuranController@getAudio');
 
 });
 // end main apis
