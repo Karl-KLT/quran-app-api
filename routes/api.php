@@ -26,7 +26,7 @@ Route::prefix('Quran')->group(function(){
     Route::get('getAll','QuranController@getAll');
 
 
-    Route::get('getSurah/{numberOfSurah?}','QuranController@getSurah');
+    Route::get('getSurah/{numberOfSurah}','QuranController@getSurah');
 
 });
 // end main apis

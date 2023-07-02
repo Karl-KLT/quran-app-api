@@ -18,12 +18,6 @@ class QuranService
 
     public function getSurah(int $numberOfSurah)
     {
-        // if(!$numberOfSurah){
-        //     return response()->json([
-        //         'message' => 'number of surah not founded',
-        //         'status' => 500,
-        //     ],500);
-        // }
         return $this->QuranRepository->getSurah($numberOfSurah);
     }
 }
