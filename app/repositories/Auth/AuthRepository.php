@@ -1,94 +1,131 @@
 <?php
 
-namespace App\repositories\Auth;
+namespace App\Repositories\Auth;
 
-use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
+use App\Models\CustomUser;
 class AuthRepository
 {
-    protected function getUserByToken($token = null)
-    {
 
-        $user = User::all()->where('token',$token)->first() ?? null;
-
-        if($user){
-            return $user;
-        }
-
-        return false;
-    }
-    public function createUser()
-    {
-        $validator = Validator::make(request()->only('token','device_name'),[
-            'device_name' => "required",
-            'token' => "required|unique:users,token"
-        ]);
-
-        if($validator->fails()){
-            return response()->json([
-                'validation' => $validator->getMessageBag(),
-                'message' => 'validation has failed',
-                'status' => 500
-            ],500);
-        }
-
-        try{
-
-            $user = User::create(request()->only('token','device_name'));
-
-            if($user){
-                return response()->json([
-                    'message' => 'user has been created successfully',
-                    'status' => 200
-                ],200);
-            }
-
-            return response()->json([
-                'message' => 'smth went wrong',
-                'status' => 500
-            ],500);
-
-        }catch(\Throwable $e){
-            return response()->json([
-                'error' => $e,
-                'message' => "can't create account",
-                'status' => 500
-            ],500);
-        }
-    }
-
-    public function updateUser()
+    public function create()
     {
         $validator = Validator::make(request()->all(),[
-            'token' => "required|exists:users,token"
+            "name" => "required",
+            'email' => "required|unique:users,email",
+            'phone_number' => "required|unique:users,phone_number",
+            "country" => "required",
+            "city" => "required",
+            "image" => "file",
+            "password" => "required",
         ]);
 
         if($validator->fails()){
             return response()->json([
-                'validation' => $validator->getMessageBag(),
                 'message' => 'validation has failed',
-                'status' => 500
+                'status' => 500,
+                'validation' => $validator->getMessageBag(),
             ],500);
         }
 
-        $user = $this->getUserByToken(request()->token);
 
-        $user->fill(request()->except('count_of_login'));
-        $user->count_of_login = $user->count_of_login + 1;
+        try{
+            $user = new User;
 
-        if($user->update()){
+            $user->fill(request()->except('password'));
+            $user->password = \Hash::make(request()->password);
+            $user->save();
 
             return response()->json([
-                'user' => $user,
-                'message' => "successfully",
-                'status' => 200
+                'message' => 'account has been created successfully',
+                'status' => 200,
             ],200);
+        }catch(\Throwable $e){
+            return response()->json([
+                'message' => 'error',
+                'status' => 500,
+                'error' => $e
+            ],500);
+        }
+    }
 
+
+    // login
+    public function login()
+    {
+        // email / phone_number
+        $validator = Validator::make(request()->all(),[
+            'email' => "exists:users,email|required_unless:phone_number,".request()->phone_number,
+            'phone_number' => "exists:users,phone_number|required_unless:email,".request()->email,
+            'password' => "required",
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'message' => 'validation has failed',
+                'status' => 500,
+                'validation' => $validator->getMessageBag(),
+            ],500);
         }
 
+        if(request()->filled('email')){
+            $auth = auth()->attempt(request()->only('email','password'));
+        }else{
+            $auth = auth()->attempt(request()->only('phone_number','password'));
+        }
+
+        if($auth){
+            return $this->respondWithToken($auth);
+        }
         return response()->json([
-            'message' => "we can't found your account",
-            'status' => 500
+            'message' => "can't login, check email or phone_number and password",
+            'status' => 500,
         ],500);
+
+    }
+
+    public function profile()
+    {
+        return response()->json([
+            'message' => 'successfully',
+            'status' => 200,
+            'user' => auth()->user()
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
+    public function refresh()
+    {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    /**
+     * Get the token array structure.
+     *
+     * @param  string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'message' => 'successfully',
+            'status' => 200,
+            'access_token' => 'bearer '.$token,
+
+
+            // 'token_type' => 'bearer',
+            // 'expires_in' => auth()->factory()->getTTL() * 60
+
+        ]);
     }
 }

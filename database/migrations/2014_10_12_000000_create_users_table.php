@@ -13,9 +13,14 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('device_name');
-            $table->string('token')->unique();
-            $table->bigInteger('count_of_login')->default(0);
+            $table->string('name');
+            $table->text('email')->unique();
+            $table->string('phone_number')->unique(); // unique
+            $table->string('country');
+            $table->string('city');
+            $table->longText('image')->nullable();
+            $table->text('password');
+            $table->rememberToken();    
             $table->timestamps();
         });
     }

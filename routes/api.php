@@ -14,11 +14,31 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// auth apis
 Route::prefix('Auth')->group(function(){
-    Route::post('createUser','AuthController@createUser');
-    Route::post('updateUser','AuthController@updateUser');
-});
 
+
+    Route::prefix('Tokens')->group(function(){
+        Route::post('createUser','Guest\GuestController@createUser');
+        Route::post('updateUser','Guest\GuestController@updateUser');
+    });
+
+
+    Route::prefix('Accounts')->group(function(){
+        Route::post('create','Auth\AuthController@create');
+
+        Route::post('login','Auth\AuthController@login');
+
+        Route::post('profile','Auth\AuthController@profile');
+
+    //     // forget password / phone_number
+    });
+
+
+
+
+});
+// end auth apis
 
 // main apis
 Route::prefix('Quran')->group(function(){
@@ -38,7 +58,7 @@ Route::fallback(function(){
     if(config('app.dev')){
         return response()->json([
             'apis' => [
-                'User' => config('custom.apis.UserRoute'),
+                'User' => config('custom.apis.AuthRoute'),
                 'Quran' => config('custom.apis.QuranRoute')
             ],
             'message' => "api doesn't found, check type of api then try again",

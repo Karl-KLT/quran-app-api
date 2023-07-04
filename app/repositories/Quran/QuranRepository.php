@@ -103,21 +103,42 @@ class QuranRepository
 
     public function getSurah(int $numberOfSurah)
     {
-        $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/quran-simple')['ayahs'];
+        $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/quran-unicode')['ayahs'];
         
-        foreach ($surah as $surahValue) {
+        if($numberOfSurah == 1){
             $this->value[] = [
-                'number' => $surahValue['number'],
-                'text' => $surahValue['text'],
+                'number' => $numberOfSurah,
+                'text' => "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ ",
                 'color' => null,
-                'numberInSurah' => $surahValue['numberInSurah'],
+                'numberInSurah' =>  1,
             ];
+        }else{
+            $this->value[] = [
+                'number' => $numberOfSurah,
+                'text' => "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ ",
+                'color' => null,
+                'numberInSurah' =>  0,
+            ];
+        }
+
+
+        foreach ($surah as $key => $surahValue) {
+
+            if($surahValue['text'] != "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ "){
+                $this->value[] = [
+                    'number' => $numberOfSurah,
+                    'text' => $surahValue['text'],
+                    'color' => null,
+                    'juz' => $surahValue['juz'],
+                    'numberInSurah' => $surahValue['numberInSurah'],
+                ];
+            }
         }
         
         return response()->json([
-            'data' => !empty($this->value) ? $this->value : null,
             'message' => 'successfully',
-            'status' => 200
+            'status' => 200,
+            'data' => !empty($this->value) ? $this->value : null
         ]);
     }
 
@@ -145,9 +166,9 @@ class QuranRepository
                         ];
                     }
                     return response()->json([
-                        'data' => $surahH,
                         'message' => 'id not found',
-                        'status' => 500
+                        'status' => 500,
+                        'data' => $surahH,
                     ],500);
                 }
             }
@@ -166,7 +187,6 @@ class QuranRepository
             foreach ($surah as $value) {
                 if($value['identifier'] == $idOfPerson){
                     $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/'.$idOfPerson)['ayahs'];
-                    
                     $arabicName = $value['name'];
                     $englishName = $value['englishName'];
                     

@@ -2,10 +2,16 @@
 
 
 return [
-    'UserRoute' => [
-        '[prefix]User/' => [
+    'AuthRoute' => [
+
+
+        '[prefix]Tokens/' => [
             '[post]createUser',
             '[post]updateUser',
+        ],
+
+        '[prefix]Accounts/' => [
+            '[post]**********',
         ]
     ],
 

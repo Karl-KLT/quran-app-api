@@ -2,7 +2,7 @@
 
 namespace App\Http\Services\Auth;
 
-use App\repositories\Auth\AuthRepository;
+use App\Repositories\Auth\AuthRepository;
 class AuthService
 {
     protected $AuthRepository;
@@ -11,13 +11,18 @@ class AuthService
         $this->AuthRepository = $AuthRepository;
     }
 
-    public function createUser()
+    public function create()
     {
-        return $this->AuthRepository->createUser();
+        return $this->AuthRepository->create();
     }
 
-    public function updateUser()
+    public function login()
     {
-        return $this->AuthRepository->updateUser();
+        return $this->AuthRepository->login();
+    }
+
+    public function profile()
+    {
+        return $this->AuthRepository->profile();
     }
 }
