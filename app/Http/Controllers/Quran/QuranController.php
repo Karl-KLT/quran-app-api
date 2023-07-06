@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Quran;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\Quran\QuranService;
@@ -12,6 +12,7 @@ class QuranController extends Controller
     public function __construct(QuranService $QuranService)
     {
         $this->QuranService = $QuranService;
+
     }
     public function getAll()
     {

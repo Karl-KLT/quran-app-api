@@ -2,7 +2,7 @@
 
 namespace App\Http\Services\Quran;
 
-use App\repositories\Quran\QuranRepository;
+use App\Repositories\Quran\QuranRepository;
 
 class QuranService
 {

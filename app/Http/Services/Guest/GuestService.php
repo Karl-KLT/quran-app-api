@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Services\Guest;
-use App\repositories\Guest\GuestRepository;
+use App\Repositories\Guest\GuestRepository;
 
 class GuestService
 {
@@ -11,14 +11,14 @@ class GuestService
     {
         $this->GuestRepository = $GuestRepository;
     }
-    public function createUser()
+    public function create()
     {
-        return $this->GuestRepository->createUser();
+        return $this->GuestRepository->create();
     }
 
-    public function updateUser()
+    public function update()
     {
-        return $this->GuestRepository->updateUser();
+        return $this->GuestRepository->update();
     }
 
 }

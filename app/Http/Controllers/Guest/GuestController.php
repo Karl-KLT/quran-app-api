@@ -13,13 +13,13 @@ class GuestController extends Controller
     {
         $this->GuestService = $GuestService;
     }
-    public function createUser()
+    public function create()
     {
-        return $this->GuestService->createUser();
+        return $this->GuestService->create();
     }
 
-    public function updateUser()
+    public function update()
     {
-        return $this->GuestService->updateUser();
+        return $this->GuestService->update();
     }
 }

@@ -18,30 +18,27 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('Auth')->group(function(){
 
 
-    Route::prefix('Tokens')->group(function(){
-        Route::post('createUser','Guest\GuestController@createUser');
-        Route::post('updateUser','Guest\GuestController@updateUser');
+    Route::prefix('Guest')->namespace('Guest')->group(function(){
+        Route::post('create','GuestController@create');
+        Route::post('update','GuestController@update');
     });
 
 
-    Route::prefix('Accounts')->group(function(){
-        Route::post('create','Auth\AuthController@create');
+    Route::prefix('Accounts')->namespace('Auth')->group(function(){
+        Route::post('create','AuthController@create');
 
-        Route::post('login','Auth\AuthController@login');
+        Route::post('login','AuthController@login');
 
-        Route::post('profile','Auth\AuthController@profile');
+        Route::get('profile','AuthController@profile');
 
     //     // forget password / phone_number
     });
-
-
-
 
 });
 // end auth apis
 
 // main apis
-Route::prefix('Quran')->group(function(){
+Route::prefix('Quran')->namespace('Quran')->group(function(){
 
     Route::get('getAll','QuranController@getAll');
     Route::get('getAllPersonTafir','QuranController@getAllPersonTafir');

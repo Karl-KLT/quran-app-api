@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Http\Services\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,6 +13,14 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+
+    protected $Carbon;
+    public function __construct()
+    {
+        $this->Carbon = new Carbon;
+    }
+
 
     protected $fillable = [
         'name',
@@ -24,10 +33,18 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     protected $hidden = [
-        'password'
+        'password',
+        'remember_token'
     ];
 
 
+    public function toArray()
+    {
+        return collect(parent::toArray())->merge([
+            'created_at' => $this->Carbon->handle($this->created_at),
+            'updated_at' => $this->Carbon->handle($this->updated_at)
+        ]);
+    }
 
     public function getJWTIdentifier()
     {

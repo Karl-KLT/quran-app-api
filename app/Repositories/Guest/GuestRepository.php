@@ -21,7 +21,7 @@ class GuestRepository
         }
 
 
-        public function createUser()
+        public function create()
         {
             $validator = Validator::make(request()->only('token','device_name'),[
                 'device_name' => "required",
@@ -62,7 +62,7 @@ class GuestRepository
         }
 
         // update
-        public function updateUser()
+        public function update()
         {
             $validator = Validator::make(request()->all(),[
                 'token' => "required|exists:guests,token"
