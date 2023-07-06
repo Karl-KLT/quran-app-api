@@ -35,6 +35,21 @@ class QuranService
         return $this->QuranRepository->getSurah($numberOfSurah);
     }
 
+    public function getRandomSurah()
+    {
+        return $this->QuranRepository->getRandomSurah();
+    }
+
+    public function getAllJuz()
+    {
+        return $this->QuranRepository->getAllJuz();
+    }
+
+    public function getJuz($numberOfJuz)
+    {
+        return $this->QuranRepository->getJuz($numberOfJuz);
+    }
+
     public function getTafsir(int $numberOfSurah,string $idOfPerson)
     {
         return $this->QuranRepository->getTafsir($numberOfSurah,$idOfPerson);

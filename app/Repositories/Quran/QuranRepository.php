@@ -40,7 +40,7 @@ class QuranRepository
 
 
     public function getAllPersonTafir()
-    {    
+    {
         try{
             $editions = $this->getRequest('http://api.alquran.cloud/v1/edition?type=tafsir&language=ar');
             foreach ($editions as $value) {
@@ -65,7 +65,7 @@ class QuranRepository
     }
 
     public function getAllPersonAudio()
-    {    
+    {
         try{
             $editions = $this->getRequest('http://api.alquran.cloud/v1/edition?format=audio&language=ar');
             foreach ($editions as $value) {
@@ -104,7 +104,7 @@ class QuranRepository
     public function getSurah(int $numberOfSurah)
     {
         $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/quran-unicode')['ayahs'];
-        
+
         if($numberOfSurah == 1){
             $this->value[] = [
                 'number' => $numberOfSurah,
@@ -134,7 +134,7 @@ class QuranRepository
                 ];
             }
         }
-        
+
         return response()->json([
             'message' => 'successfully',
             'status' => 200,
@@ -143,19 +143,84 @@ class QuranRepository
     }
 
 
+
+    public function getRandomSurah()
+    {
+        return $this->getSurah(random_int(1,114));
+    }
+
+
+    public function getAllJuz()
+    {
+        $juzArray = array();
+        for ($i=1; $i <= 30; $i++) {
+
+            $juz = $this->getRequest("http://api.alquran.cloud/v1/juz/".$i."/quran-simple");
+
+            $juzArray[] = [
+                'juz' => $juz['number'],
+                'from' => [
+                    'name' => collect($juz['surahs'])->first()['name'],
+                    'englishName' => collect($juz['surahs'])->first()['englishName'],
+                    'numberOfAyahs' => collect($juz['surahs'])->first()['numberOfAyahs']
+                ],
+                'to' => [
+                    'name' => collect($juz['surahs'])->last()['name'],
+                    'englishName' => collect($juz['surahs'])->first()['englishName'],
+                    'numberOfAyahs' => collect($juz['surahs'])->last()['numberOfAyahs']
+                ],
+            ];
+        }
+
+        return response()->json([
+            'message' => 'successfully',
+            'status' => 200,
+            'data' => $juzArray
+        ],200);
+    }
+
+
+    public function getJuz($numberOfJuz)
+    {
+        $juz = $this->getRequest("http://api.alquran.cloud/v1/juz/".$numberOfJuz."/quran-simple");
+
+        foreach ($juz['ayahs'] as $value) {
+            $juzArray[] = collect($value)->only([
+                'number',
+                'text',
+                'surah',
+                'numberInSurah',
+            ])->merge([
+                'surah' => collect($value['surah'])->except('englishNameTranslation')
+            ]);
+        }
+
+
+        return response()->json([
+            'message' => 'successfuly',
+            'status' => 200,
+            'data' => [
+                'juz' => $numberOfJuz,
+                'ayahs' => $juzArray
+
+            ]
+        ],200);
+
+    }
+
     public function getTafsir(int $numberOfSurah,string $idOfPerson)
     {
         $surah = $this->getRequest('http://api.alquran.cloud/v1/edition?type=tafsir&language=ar');
-        if($numberOfSurah && $idOfPerson){                
+        if($numberOfSurah && $idOfPerson){
             foreach ($surah as $value) {
                 if($value['identifier'] == $idOfPerson){
-                    
+
                     $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/'.$idOfPerson)['ayahs'];
-                    
+
                     $arabicName = $value['name'];
                     $englishName = $value['englishName'];
-                    
-                    
+
+
                     foreach ($surah as $value) {
                         $surahH[] = [
                             'number' => $value['number'],
@@ -189,8 +254,8 @@ class QuranRepository
                     $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/'.$idOfPerson)['ayahs'];
                     $arabicName = $value['name'];
                     $englishName = $value['englishName'];
-                    
-                    
+
+
                     foreach ($surah as $value) {
                         $surahH[] = [
                             'number' => $value['number'],

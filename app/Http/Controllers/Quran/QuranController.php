@@ -35,6 +35,28 @@ class QuranController extends Controller
         return $this->QuranService->getSurah($numberOfSurah);
     }
 
+    public function getRandomSurah()
+    {
+        return $this->QuranService->getRandomSurah();
+    }
+
+    public function getAllJuz()
+    {
+        return $this->QuranService->getAllJuz();
+    }
+
+    public function getJuz(int $numberOfJuz = null)
+    {
+        if($numberOfJuz){
+            return $this->QuranService->getJuz($numberOfJuz);
+        }
+
+        return response()->json([
+            'message' => 'no param found',
+            'satus' => 500
+        ],500);
+    }
+
     public function getTafsir(int $numberOfSurah,string $idOfPerson)
     {
         return $this->QuranService->getTafsir($numberOfSurah,$idOfPerson);

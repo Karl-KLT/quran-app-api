@@ -45,6 +45,17 @@ Route::prefix('Quran')->namespace('Quran')->group(function(){
     Route::get('getAllPersonAudio','QuranController@getAllPersonAudio');
 
     Route::get('getSurah/{numberOfSurah}','QuranController@getSurah');
+
+    ////////////////////////////////////
+    Route::get('getRandomSurah','QuranController@getRandomSurah');
+
+    Route::get('getAllJuz','QuranController@getAllJuz');
+    // Route::get('getSurahFromJuz/{idOfJuz}','QuranController@getRandomSurah');
+
+    ////////////////////////////////////
+
+
+    Route::get('getJuz/{numberOfJuz?}','QuranController@getJuz');
     Route::get('getTafsir/{numberOfSurah}/{idOfPerson}','QuranController@getTafsir');
     Route::get('getAudio/{numberOfSurah}/{idOfPerson}','QuranController@getAudio');
 
