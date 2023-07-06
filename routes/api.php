@@ -24,7 +24,7 @@ Route::prefix('Auth')->group(function(){
     });
 
 
-    Route::prefix('Accounts')->namespace('Auth')->group(function(){
+    Route::prefix('Account')->namespace('Auth')->group(function(){
         Route::post('create','AuthController@create');
 
         Route::post('login','AuthController@login');
