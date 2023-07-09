@@ -59,6 +59,15 @@ Route::prefix('Quran')->namespace('Quran')->group(function(){
     Route::get('getTafsir/{numberOfSurah}/{idOfPerson}','QuranController@getTafsir');
     Route::get('getAudio/{numberOfSurah}/{idOfPerson}','QuranController@getAudio');
 
+    Route::prefix("Account")->group(function(){
+        Route::post("Saved",'QuranController@post_saved');
+        Route::get("Saved",'QuranController@get_saved');
+    });
+
+    Route::prefix("Timing")->group(function(){
+        Route::get('getPrayerTime/{lat}/{lng}','QuranController@getPrayerTime');
+    });
+
 });
 // end main apis
 

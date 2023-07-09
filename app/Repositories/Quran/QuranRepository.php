@@ -2,14 +2,20 @@
 
 namespace App\repositories\Quran;
 
+use Carbon\Carbon;
+use App\Http\Services\Carbon as customCarbon;
+use Date;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class QuranRepository
 {
     public $value = array();
-    public function __construct()
+    protected $customCarbon;
+    public function __construct(customCarbon $customCarbon)
     {
+        $this->customCarbon = $customCarbon;
         // http://api.alquran.cloud/v1/edition?format=audio&language=ar
     }
     public function getRequest(string $url)
@@ -280,78 +286,143 @@ class QuranRepository
     }
 
 
+    // Accounts
+
+    public function post_saved()
+    {
+        $validate = Validator::make(request()->all(),[
+            'idOfSurah' => "required",
+            'idOfAyah' => "required"
+        ]);
+
+        if($validate->fails()){
+            return response()->json([
+                'validation' => $validate->getMessageBag(),
+                'message' => 'successfully',
+                'status' => 500
+            ],500);
+        }
+
+        $user = auth()->user()->saves();
+        $user->create(request()->only('idOfSurah','idOfAyah'));
+
+        if($user){
+            return response()->json([
+                'message' => 'successfully',
+                'status' => 200,
+            ],200);
+        }
+
+        return response()->json([
+            'message' => 'failed',
+            'status' => 500
+        ],500);
 
 
 
 
 
 
+    }
+
+    public function get_saved()
+    {
+
+        $data = null;
+
+        $user_saves = auth()->user()->saves;
+
+        foreach ($user_saves as $saves) {
+            $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$saves['idOfSurah']);
+
+            foreach ($surah['ayahs'] as $ayahs) {
+
+                if($saves['idOfAyah'] == $ayahs['number']){
+
+                    $data[] = [
+                        'number' => $surah['number'],
+                        'name' => $surah['name'],
+                        'englishName' => $surah['englishName'],
+                        'revelationType' => $surah['revelationType'],
+                        'numberOfAyahs' => $surah['numberOfAyahs'],
+                        'ayah' => [
+                            'number' => $ayahs['number'],
+                            'text' => $ayahs['text'],
+                            'numberInSurah' => $ayahs['numberInSurah'],
+                        ],
+                        'created_at' => $this->customCarbon->handle($saves['created_at']),
+                        'updated_at' => $this->customCarbon->handle($saves['updated_at']),
+                    ];
+                }
+            }
+
+
+        };
+
+
+        // return $data;
+        return response()->json([
+            'message' => 'successfully',
+            'Status' => 200,
+            'data' => $data
+        ]);
+    }
+    // end Accounts
+
+    public function getPrayerTime($lat,$lng)
+    {
+        $date = Carbon::create(Date::now())->format('d-m-Y');
+
+        $timing = $this->getRequest("http://api.aladhan.com/v1/timings/$date?latitude=$lat&longitude=$lng&method=7");
+
+        $time = collect($timing)->first();
+
+        // return $time;
+
+        foreach ($time as $key => $value) {
+
+            preg_match("/(..*):(..*)/",$value,$match);
+
+            $blockList = [
+                'Sunrise',
+                'Sunset',
+                'Imsak',
+                'Midnight',
+                'Firstthird',
+                'Lastthird',
+            ];
+
+            if(in_array($key,$blockList,true)){continue;}
+
+            $h = intval($match[1]);
+            $m = intval($match[2]);
+
+            $date = date("$h:$m a",strtotime($value));
+
+            preg_match("/(..*):((..*) (am|pm))/",$date,$match);
+
+            if($match[1] > 12){
+                $match[1] = $match[1] - 12;
+            }
+
+            if(strlen($match[3]) == 1){
+                $match[3] = "0$match[3]";
+            }
+
+            $h = $match[1]; // houre
+            $m = $match[3]; // minate
+            $a = $match[4]; // am/pm
+
+            $this->value[] = [$key => "$h:$m $a"];
+        }
+
+        return response()->json([
+            'message' => 'successfully',
+            'status' => 200,
+            'data' => collect($this->value)
+        ],200);
+    }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // 'tafsir' => $this->handleTafsir($numberOfSurah,$surahValue['number']),
-    // 'audios' => $this->handleAudio($numberOfSurah,$surahValue['number'])
-
-    // protected function handleAudio($numberOfSurah,$numberOfAyah){
-    //     $editions = $this->getRequest('http://api.alquran.cloud/v1/edition?format=audio&language=ar');
-    //     $edition = null;
-    //     foreach ($editions as $editionsValue) {
-    //         $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/'.$editionsValue['identifier'])['ayahs'];
-    //         foreach ($surah as $value) {
-    //             if($value['number'] == $numberOfAyah){
-    //                 $edition[] = [
-    //                     'audios' => [
-    //                         'name' => $editionsValue['englishName'],
-    //                         'audio' => $value['audio'],
-    //                         'audioSecondary' => $value['audioSecondary']
-    //                     ]
-    //                 ];
-    //             }
-    //         }
-    //     }
-    //     return $edition;
-    // }
-
-    // protected function handleTafsir($numberOfSurah,$numberOfAyah){
-    //     $editions = $this->getRequest('http://api.alquran.cloud/v1/edition?type=tafsir&language=ar');
-    //     $edition = null;
-    //     foreach ($editions as $editionsValue) {
-    //         $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/'.$editionsValue['identifier'])['ayahs'];
-    //         foreach ($surah as $value) {
-    //             if($value['number'] == $numberOfAyah){
-    //                 $edition[] = [
-
-    //                     'name' => $editionsValue['englishName'],
-    //                     'text' => $value['text']
-
-    //                 ];
-    //             }
-    //         }
-    //     }
-    //     return $edition;
-    // }
 }

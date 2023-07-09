@@ -58,4 +58,24 @@ class QuranService
     {
         return $this->QuranRepository->getAudio($numberOfSurah,$idOfPerson);
     }
+
+    // Accounts
+
+    public function post_saved()
+    {
+        return $this->QuranRepository->post_saved();
+    }
+
+    public function get_saved()
+    {
+        return $this->QuranRepository->get_saved();
+    }
+    // end Accounts
+
+
+    // preyer times
+    public function getPrayerTime($lat,$lng)
+    {
+        return $this->QuranRepository->getPrayerTime($lat,$lng);
+    }
 }

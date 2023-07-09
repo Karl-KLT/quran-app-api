@@ -12,6 +12,7 @@ class QuranController extends Controller
     public function __construct(QuranService $QuranService)
     {
         $this->QuranService = $QuranService;
+        $this->middleware("auth:api",['only'=>['post_saved','get_saved']]);
 
     }
     public function getAll()
@@ -65,4 +66,29 @@ class QuranController extends Controller
     {
         return $this->QuranService->getAudio($numberOfSurah,$idOfPerson);
     }
+
+
+    // Accounts
+
+    public function post_saved()
+    {
+        return $this->QuranService->post_saved();
+    }
+
+    public function get_saved()
+    {
+        return $this->QuranService->get_saved();
+    }
+
+    // end Accounts
+
+
+
+    // prayerTimes
+    public function getPrayerTime(float $lat,float $lng)
+    {
+        return $this->QuranService->getPrayerTime($lat,$lng);
+    }
+
+
 }
