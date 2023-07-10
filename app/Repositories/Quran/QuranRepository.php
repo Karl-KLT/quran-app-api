@@ -165,16 +165,14 @@ class QuranRepository
 
             $juzArray[] = [
                 'juz' => $juz['number'],
-                'from' => [
-                    'name' => collect($juz['surahs'])->first()['name'],
-                    'englishName' => collect($juz['surahs'])->first()['englishName'],
-                    'numberOfAyahs' => collect($juz['surahs'])->first()['numberOfAyahs']
-                ],
-                'to' => [
-                    'name' => collect($juz['surahs'])->last()['name'],
-                    'englishName' => collect($juz['surahs'])->first()['englishName'],
-                    'numberOfAyahs' => collect($juz['surahs'])->last()['numberOfAyahs']
-                ],
+
+
+                'from_name' => collect($juz['surahs'])->first()['name'],
+                'from_englishName' => collect($juz['surahs'])->first()['englishName'],
+                'from_numberOfAyahs' => collect($juz['surahs'])->first()['numberOfAyahs'],
+                'to_name' => collect($juz['surahs'])->last()['name'],
+                'to_englishName' => collect($juz['surahs'])->first()['englishName'],
+                'to_numberOfAyahs' => collect($juz['surahs'])->last()['numberOfAyahs'],
             ];
         }
 
@@ -190,28 +188,15 @@ class QuranRepository
     {
         $juz = $this->getRequest("http://api.alquran.cloud/v1/juz/".$numberOfJuz."/quran-simple");
 
-        foreach ($juz['ayahs'] as $value) {
-            $juzArray[] = collect($value)->only([
-                'number',
-                'text',
-                'surah',
-                'numberInSurah',
-            ])->merge([
-                'surah' => collect($value['surah'])->except('englishNameTranslation')
-            ]);
+        foreach($juz['surahs'] as $surah){
+            $this->value[] = collect($surah)->except('englishNameTranslation');
         }
-
 
         return response()->json([
             'message' => 'successfuly',
             'status' => 200,
-            'data' => [
-                'juz' => $numberOfJuz,
-                'ayahs' => $juzArray
-
-            ]
+            'data' => $this->value
         ],200);
-
     }
 
     public function getTafsir(int $numberOfSurah,string $idOfPerson)

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Tymon\JWTAuth\Facades\JWTFactory;
 
 class AppServiceProvider extends ServiceProvider
 {
