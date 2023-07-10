@@ -69,8 +69,9 @@ Route::prefix('Quran')->namespace('Quran')->group(function(){
 
 
 
-Route::prefix('Services')->namespace('Services')->group(function(){
-    Route::get('getAll');
+Route::prefix('Service')->namespace('Service')->group(function(){
+    Route::get('getAll','ServiceController@getAll');
+    Route::post('getService/{id?}','ServiceController@getService');
 });
 // end main apis
 
