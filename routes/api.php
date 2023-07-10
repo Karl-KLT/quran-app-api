@@ -47,17 +47,14 @@ Route::prefix('Quran')->namespace('Quran')->group(function(){
     Route::get('getSurah/{numberOfSurah}','QuranController@getSurah');
 
     ////////////////////////////////////
-    Route::get('getRandomSurah','QuranController@getRandomSurah');
+    Route::get('quickAccess','QuranController@quickAccess');
 
     Route::get('getAllJuz','QuranController@getAllJuz');
-    // Route::get('getSurahFromJuz/{idOfJuz}','QuranController@getRandomSurah');
-
-    ////////////////////////////////////
-
 
     Route::get('getJuz/{numberOfJuz?}','QuranController@getJuz');
-    Route::get('getTafsir/{numberOfSurah}/{idOfPerson}','QuranController@getTafsir');
-    Route::get('getAudio/{numberOfSurah}/{idOfPerson}','QuranController@getAudio');
+
+    Route::get('getTafsir/{numberOfSurah}/{idOfPerson}/{numberOfAyah?}','QuranController@getTafsir');
+    Route::get('getAudio/{numberOfSurah}/{idOfPerson}/{numberOfAyah?}','QuranController@getAudio');
 
     Route::prefix("Account")->group(function(){
         Route::post("Saved",'QuranController@post_saved');
@@ -68,6 +65,12 @@ Route::prefix('Quran')->namespace('Quran')->group(function(){
         Route::get('getPrayerTime/{lat}/{lng}','QuranController@getPrayerTime');
     });
 
+});
+
+
+
+Route::prefix('Services')->namespace('Services')->group(function(){
+    Route::get('getAll');
 });
 // end main apis
 

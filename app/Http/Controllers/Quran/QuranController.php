@@ -36,9 +36,9 @@ class QuranController extends Controller
         return $this->QuranService->getSurah($numberOfSurah);
     }
 
-    public function getRandomSurah()
+    public function quickAccess()
     {
-        return $this->QuranService->getRandomSurah();
+        return $this->QuranService->quickAccess();
     }
 
     public function getAllJuz()
@@ -58,13 +58,13 @@ class QuranController extends Controller
         ],500);
     }
 
-    public function getTafsir(int $numberOfSurah,string $idOfPerson)
+    public function getTafsir(int $numberOfSurah,string $idOfPerson,int $numberOfAyah = null)
     {
-        return $this->QuranService->getTafsir($numberOfSurah,$idOfPerson);
+        return $this->QuranService->getTafsir($numberOfSurah,$idOfPerson,$numberOfAyah);
     }
-    public function getAudio(int $numberOfSurah,string $idOfPerson)
+    public function getAudio(int $numberOfSurah,string $idOfPerson,int $numberOfAyah = null)
     {
-        return $this->QuranService->getAudio($numberOfSurah,$idOfPerson);
+        return $this->QuranService->getAudio($numberOfSurah,$idOfPerson,$numberOfAyah);
     }
 
 

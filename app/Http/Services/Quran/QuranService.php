@@ -35,9 +35,9 @@ class QuranService
         return $this->QuranRepository->getSurah($numberOfSurah);
     }
 
-    public function getRandomSurah()
+    public function quickAccess()
     {
-        return $this->QuranRepository->getRandomSurah();
+        return $this->QuranRepository->quickAccess();
     }
 
     public function getAllJuz()
@@ -50,13 +50,13 @@ class QuranService
         return $this->QuranRepository->getJuz($numberOfJuz);
     }
 
-    public function getTafsir(int $numberOfSurah,string $idOfPerson)
+    public function getTafsir(int $numberOfSurah,string $idOfPerson,$numberOfAyah)
     {
-        return $this->QuranRepository->getTafsir($numberOfSurah,$idOfPerson);
+        return $this->QuranRepository->getTafsir($numberOfSurah,$idOfPerson,$numberOfAyah);
     }
-    public function getAudio(int $numberOfSurah,string $idOfPerson)
+    public function getAudio(int $numberOfSurah,string $idOfPerson,$numberOfAyah)
     {
-        return $this->QuranRepository->getAudio($numberOfSurah,$idOfPerson);
+        return $this->QuranRepository->getAudio($numberOfSurah,$idOfPerson,$numberOfAyah);
     }
 
     // Accounts

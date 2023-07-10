@@ -150,9 +150,27 @@ class QuranRepository
 
 
 
-    public function getRandomSurah()
+    public function quickAccess()
     {
-        return $this->getSurah(random_int(1,114));
+        $surahs = $this->getRequest('http://api.alquran.cloud/v1/surah');
+        $uniqueList = array();
+
+        for ($i=0; $i < 114; $i++) {
+
+            $rand = random_int(1,114);
+
+            if(!in_array($rand,$uniqueList)){
+                $this->value[] = collect($surahs[$rand])->except('englishNameTranslation');
+                $uniqueList[] = $surahs[$rand]['number'];
+            }
+
+        }
+
+        return response()->json([
+            'message' => 'successfully',
+            'status' => 200,
+            'data' => $this->value
+        ],200);
     }
 
 
@@ -166,12 +184,12 @@ class QuranRepository
             $juzArray[] = [
                 'juz' => $juz['number'],
 
-
                 'from_name' => collect($juz['surahs'])->first()['name'],
                 'from_englishName' => collect($juz['surahs'])->first()['englishName'],
                 'from_numberOfAyahs' => collect($juz['surahs'])->first()['numberOfAyahs'],
+
                 'to_name' => collect($juz['surahs'])->last()['name'],
-                'to_englishName' => collect($juz['surahs'])->first()['englishName'],
+                'to_englishName' => collect($juz['surahs'])->last()['englishName'],
                 'to_numberOfAyahs' => collect($juz['surahs'])->last()['numberOfAyahs'],
             ];
         }
@@ -199,8 +217,9 @@ class QuranRepository
         ],200);
     }
 
-    public function getTafsir(int $numberOfSurah,string $idOfPerson)
+    public function getTafsir(int $numberOfSurah,string $idOfPerson,$numberOfAyah)
     {
+
         $surah = $this->getRequest('http://api.alquran.cloud/v1/edition?type=tafsir&language=ar');
         if($numberOfSurah && $idOfPerson){
             foreach ($surah as $value) {
@@ -213,19 +232,31 @@ class QuranRepository
 
 
                     foreach ($surah as $value) {
-                        $surahH[] = [
-                            'number' => $value['number'],
-                            'arabicName' => $arabicName,
-                            'englishName' => $englishName,
-                            'text' => $value['text'],
-                            'numberInSurah' => $value['numberInSurah']
-                        ];
+                        if($numberOfAyah && $numberOfAyah == $value['numberInSurah']){
+                            $surahH = [
+                                'number' => $value['number'],
+                                'arabicName' => $arabicName,
+                                'englishName' => $englishName,
+                                'text' => $value['text'],
+                                'numberInSurah' => $value['numberInSurah']
+                            ];
+                            break;
+                        }else{
+                            $surahH[] = [
+                                'number' => $value['number'],
+                                'arabicName' => $arabicName,
+                                'englishName' => $englishName,
+                                'text' => $value['text'],
+                                'numberInSurah' => $value['numberInSurah']
+                            ];
+                        }
                     }
                     return response()->json([
-                        'message' => 'id not found',
-                        'status' => 500,
+                        'message' => 'successfully',
+                        'status' => 200,
                         'data' => $surahH,
-                    ],500);
+                    ],200);
+
                 }
             }
             return response()->json([
@@ -235,7 +266,7 @@ class QuranRepository
         }
 
     }
-    public function getAudio(int $numberOfSurah,string $idOfPerson)
+    public function getAudio(int $numberOfSurah,string $idOfPerson,$numberOfAyah)
     {
         $surah = $this->getRequest('http://api.alquran.cloud/v1/edition?format=audio&language=ar');
 
@@ -248,18 +279,29 @@ class QuranRepository
 
 
                     foreach ($surah as $value) {
-                        $surahH[] = [
-                            'number' => $value['number'],
-                            'arabicName' => $arabicName,
-                            'englishName' => $englishName,
-                            'audio' => $value['audio'],
-                            'audioSecondary' => !empty($value['audioSecondary']) ? $value['audioSecondary'] : null
-                        ];
+                        if($numberOfAyah && $numberOfAyah == $value['numberInSurah']){
+                            $surahH = [
+                                'number' => $value['number'],
+                                'name' => $arabicName,
+                                'englishName' => $englishName,
+                                'audio' => $value['audio'],
+                                'audioSecondary' => !empty($value['audioSecondary']) ? $value['audioSecondary'] : null
+                            ];
+                            break;
+                        }else{
+                            $surahH[] = [
+                                'number' => $value['number'],
+                                'name' => $arabicName,
+                                'englishName' => $englishName,
+                                'audio' => $value['audio'],
+                                'audioSecondary' => !empty($value['audioSecondary']) ? $value['audioSecondary'] : null
+                            ];
+                        }
                     }
                     return response()->json([
-                        'data' => $surahH,
                         'message' => 'successfully',
-                        'status' => 200
+                        'status' => 200,
+                        'data' => $surahH
                     ],200);
                 }
             }
@@ -407,7 +449,5 @@ class QuranRepository
             'data' => collect($this->value)
         ],200);
     }
-
-
 
 }
