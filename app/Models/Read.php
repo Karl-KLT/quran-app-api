@@ -6,11 +6,12 @@ use App\Http\Services\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Save extends Model
+class Read extends Model
 {
     use HasFactory;
 
     protected $Carbon;
+
     public function __construct()
     {
         $this->Carbon = new Carbon;
@@ -18,10 +19,17 @@ class Save extends Model
 
     protected $fillable = [
         'idOfSurah',
-        'idOfAyah'
+        'idOfAyah',
     ];
 
-    protected $hidden = ['user_id'];
+    protected $hidden = [
+        'user_id'
+    ];
+
+    protected $casts = [
+        'idOfSurah' => 'integer',
+        'idOfAyah' => 'integer'
+    ];
 
     public function toArray()
     {

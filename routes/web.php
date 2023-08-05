@@ -11,4 +11,4 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::fallback(function(){return response(null,500);});
+Route::fallback(function(){return response(null,404);});

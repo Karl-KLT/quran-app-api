@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Service;
 
 
 use App\Models\Service;
-use App\repositories\Quran\QuranRepository;
+use App\Repositories\Quran\QuranRepository;
 
 class ServiceController
 
@@ -17,11 +17,46 @@ class ServiceController
 
     public function getAll()
     {
+        function fixUnique()
+        {
+            $uniqueList = array();
+            for ($i=0; $i < Service::all()->count(); $i++) {
+                $rand = Service::all()->unique()->random()['id'];
+
+                if(!in_array($rand,$uniqueList))
+                {
+                    $services[] = Service::find($rand);
+                    $uniqueList[] = $rand;
+                }else{
+                    foreach (Service::all() as $service) {
+                        if(!in_array($service->id,$uniqueList)){
+                            $services[] = $service;
+                            $uniqueList[] = $service->id;
+                        }
+                    }
+                }
+            }
+
+            return $services;
+        }
+
+
+        if(count(Service::all())){
+
+
+            return response()->json([
+                'message' => 'successfully',
+                'status' => 200,
+                'data' => fixUnique()
+            ],200);
+
+        }
+
         return response()->json([
-            'message' => 'successfully',
-            'status' => 200,
-            'data' => !empty(Service::all()) ? Service::all() : null
-        ],200);
+            'message' => 'faield',
+            'status' => 500,
+        ],500);
+
     }
 
     public function getService(int $id = null)
@@ -58,7 +93,16 @@ class ServiceController
                 ],500);
             }
 
-            return $this->QuranRepository->getPrayerTime(request()->lat,request()->lng);
+            return $this->QuranRepository->getPrayerTime(request()->post('lat'),request()->post('lng'));
         }
+    }
+
+    public function collection()
+    {
+        return response()->json([
+            'message' => 'successfully',
+            'status' => 200,
+            'data' => !empty(Service::all()) ? Service::all() : null
+        ],200);
     }
 }

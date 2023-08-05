@@ -16,9 +16,14 @@ class QuranService
         return $this->QuranRepository->getAll();
     }
 
-    public function getAllPersonTafir()
+    public function getRandomJuz()
     {
-        return $this->QuranRepository->getAllPersonTafir();
+        return $this->QuranRepository->getRandomJuz();
+    }
+
+    public function getAllPersonTafsir()
+    {
+        return $this->QuranRepository->getAllPersonTafsir();
     }
 
 
@@ -72,6 +77,15 @@ class QuranService
     }
     // end Accounts
 
+    public function post_readed()
+    {
+        return $this->QuranRepository->post_readed();
+    }
+
+    public function get_readed()
+    {
+        return $this->QuranRepository->get_readed();
+    }
 
     // preyer times
     public function getPrayerTime($lat,$lng)

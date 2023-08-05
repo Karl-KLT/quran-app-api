@@ -1,7 +1,8 @@
 <?php
 
-namespace App\repositories\Quran;
+namespace App\Repositories\Quran;
 
+use App\Models\Read;
 use Carbon\Carbon;
 use App\Http\Services\Carbon as customCarbon;
 use Date;
@@ -16,7 +17,6 @@ class QuranRepository
     public function __construct(customCarbon $customCarbon)
     {
         $this->customCarbon = $customCarbon;
-        // http://api.alquran.cloud/v1/edition?format=audio&language=ar
     }
     public function getRequest(string $url)
     {
@@ -38,17 +38,18 @@ class QuranRepository
         }
 
         return response()->json([
-            'data' => !empty($this->value) ? $this->value : null,
             'message' => 'successfully',
-            'status' => 200
+            'status' => 200,
+            'data' => !empty($this->value) ? $this->value : null
         ]);
     }
 
 
-    public function getAllPersonTafir()
+    public function getAllPersonTafsir()
     {
         try{
             $editions = $this->getRequest('http://api.alquran.cloud/v1/edition?type=tafsir&language=ar');
+
             foreach ($editions as $value) {
                 $query[] = [
                     'id' => $value['identifier'],
@@ -57,9 +58,9 @@ class QuranRepository
                 ];
             }
             return response()->json([
-                'data' => $query,
                 'message' => 'successfully',
                 'status' => 200,
+                'data' => $query,
             ],200);
         }catch(\Throwable $e){
             return response()->json([
@@ -82,9 +83,9 @@ class QuranRepository
                 ];
             }
             return response()->json([
-                'data' => $query,
                 'message' => 'successfully',
                 'status' => 200,
+                'data' => $query,
             ],200);
         }catch(\Throwable $e){
             return response()->json([
@@ -102,50 +103,34 @@ class QuranRepository
 
 
 
-
-
-
-
-
     public function getSurah(int $numberOfSurah)
     {
         $surah = $this->getRequest('http://api.alquran.cloud/v1/surah/'.$numberOfSurah.'/quran-unicode')['ayahs'];
 
-        if($numberOfSurah == 1){
-            $this->value[] = [
-                'number' => $numberOfSurah,
-                'text' => "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ ",
-                'color' => null,
-                'numberInSurah' =>  1,
-            ];
-        }else{
-            $this->value[] = [
-                'number' => $numberOfSurah,
-                'text' => "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ ",
-                'color' => null,
-                'numberInSurah' =>  0,
-            ];
-        }
-
 
         foreach ($surah as $key => $surahValue) {
 
-            if($surahValue['text'] != "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ "){
+            if($surahValue['number'] != 1){
                 $this->value[] = [
                     'number' => $numberOfSurah,
                     'text' => $surahValue['text'],
-                    'color' => null,
+                    'color' => fake()->unique()->hexColor(),
                     'juz' => $surahValue['juz'],
                     'numberInSurah' => $surahValue['numberInSurah'],
                 ];
             }
+
         }
 
-        return response()->json([
+        $data = collect($this->value)->paginate(!empty(request()->get('limit')) ? request()->get('limit') : 10);
+
+        return response()->json(
+            collect([
             'message' => 'successfully',
             'status' => 200,
-            'data' => !empty($this->value) ? $this->value : null
-        ]);
+            ])->merge(collect($data)->only('data'))
+        );
+
     }
 
 
@@ -202,6 +187,45 @@ class QuranRepository
     }
 
 
+    public function getRandomJuz()
+    {
+        function uniqueFixer($self){
+            $unique = array();
+
+            for ($i=1; $i <= 30; $i++) {
+                $rand = fake()->unique()->numberBetween(1,30);
+
+                $juz = $self->getRequest("http://api.alquran.cloud/v1/juz/".$rand."/quran-simple");
+
+                if(!in_array($rand,$unique)){
+
+                    $self->value[] = [
+                        'number' => $juz['number'],
+
+                        'from_name' => collect($juz['surahs'])->first()['name'],
+                        'from_englishName' => collect($juz['surahs'])->first()['englishName'],
+                        'from_numberOfAyahs' => collect($juz['surahs'])->first()['numberOfAyahs'],
+
+                        'to_name' => collect($juz['surahs'])->last()['name'],
+                        'to_englishName' => collect($juz['surahs'])->last()['englishName'],
+                        'to_numberOfAyahs' => collect($juz['surahs'])->last()['numberOfAyahs'],
+                    ];
+
+                    $unique[] = $rand;
+
+                }
+            }
+
+            return $self->value;
+
+        };
+
+        return response()->json([
+            'message' => 'successfully',
+            'status' => 200,
+            'data' => uniqueFixer($this)
+        ],200);
+    }
     public function getJuz($numberOfJuz)
     {
         $juz = $this->getRequest("http://api.alquran.cloud/v1/juz/".$numberOfJuz."/quran-simple");
@@ -394,7 +418,43 @@ class QuranRepository
             'data' => $data
         ]);
     }
-    // end Accounts
+
+    // readed settings
+    public function post_readed()
+    {
+        $validate = Validator::make(request()->all(),[
+            'idOfSurah' => "required",
+            'idOfAyah' => "required"
+        ]);
+
+        if($validate->fails()){
+            return response()->json([
+                'validation' => $validate->getMessageBag(),
+                'message' => 'successfully',
+                'status' => 500
+            ],500);
+        }
+
+        $isReaded = auth()->user()->readed()->updateOrCreate(['user_id'=>auth()->id()],request()->only('idOfSurah','idOfAyah'));
+
+        if($isReaded){
+            return response()->json([
+                'message' => 'successfully',
+                'Status' => 200
+            ]);
+        }
+    }
+
+    public function get_readed()
+    {
+        return response()->json([
+            'message' => 'successfully',
+            'Status' => 200,
+            'data' => auth()->user()->readed->first()
+        ]);
+    }
+
+    // //////////////////
 
     public function getPrayerTime($lat,$lng)
     {
@@ -411,10 +471,10 @@ class QuranRepository
             preg_match("/(..*):(..*)/",$value,$match);
 
             $blockList = [
-                'Sunrise',
+                // 'Sunrise',
                 'Sunset',
                 'Imsak',
-                'Midnight',
+                // 'Midnight',
                 'Firstthird',
                 'Lastthird',
             ];

@@ -31,7 +31,8 @@ Route::prefix('Auth')->group(function(){
 
         Route::get('profile','AuthController@profile');
 
-    //     // forget password / phone_number
+        // forget password / phone_number:
+            // . . .
     });
 
 });
@@ -41,7 +42,7 @@ Route::prefix('Auth')->group(function(){
 Route::prefix('Quran')->namespace('Quran')->group(function(){
 
     Route::get('getAll','QuranController@getAll');
-    Route::get('getAllPersonTafir','QuranController@getAllPersonTafir');
+    Route::get('getAllPersonTafsir','QuranController@getAllPersonTafsir');
     Route::get('getAllPersonAudio','QuranController@getAllPersonAudio');
 
     Route::get('getSurah/{numberOfSurah}','QuranController@getSurah');
@@ -50,16 +51,19 @@ Route::prefix('Quran')->namespace('Quran')->group(function(){
     Route::get('quickAccess','QuranController@quickAccess');
 
     Route::get('getAllJuz','QuranController@getAllJuz');
+    Route::get('getRandomJuz','QuranController@getRandomJuz');
 
     Route::get('getJuz/{numberOfJuz?}','QuranController@getJuz');
+
 
     Route::get('getTafsir/{numberOfSurah}/{idOfPerson}/{numberOfAyah?}','QuranController@getTafsir');
     Route::get('getAudio/{numberOfSurah}/{idOfPerson}/{numberOfAyah?}','QuranController@getAudio');
 
-    Route::prefix("Account")->group(function(){
-        Route::post("Saved",'QuranController@post_saved');
-        Route::get("Saved",'QuranController@get_saved');
-    });
+    Route::post("Saved",'QuranController@post_saved');
+    Route::get("Saved",'QuranController@get_saved');
+
+    Route::post("Readed",'QuranController@post_readed');
+    Route::get("Readed",'QuranController@get_readed');
 
     Route::prefix("Timing")->group(function(){
         Route::get('getPrayerTime/{lat}/{lng}','QuranController@getPrayerTime');
@@ -70,6 +74,8 @@ Route::prefix('Quran')->namespace('Quran')->group(function(){
 
 
 Route::prefix('Service')->namespace('Service')->group(function(){
+    Route::get('collection','ServiceController@collection');
+
     Route::get('getAll','ServiceController@getAll');
     Route::post('getService/{id?}','ServiceController@getService');
 });
@@ -79,8 +85,8 @@ Route::fallback(function(){
     if(config('app.dev')){
         return response()->json([
             'apis' => [
-                'User' => config('custom.apis.AuthRoute'),
-                'Quran' => config('custom.apis.QuranRoute')
+                'User' => !empty(config('custom.apis.AuthRoute')) ? config('custom.apis.AuthRoute') : null,
+                'Quran' => !empty(config('custom.apis.QuranRoute')) ? config('custom.apis.QuranRoute') : null
             ],
             'message' => "api doesn't found, check type of api then try again",
             'status' => 404
